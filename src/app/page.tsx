@@ -266,7 +266,8 @@ export default function Home() {
             </Card>
           </div>
         </section>
-      </div>
+          </div>
+          <Footer/>
       <ChatbotBox />
     </div>
   );
