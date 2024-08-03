@@ -16,7 +16,7 @@ import {
 export default function Footer() {
   return (
     <footer className="container bg-neutral-900 flex flex-col">
-      <div className="p-10 flex justify-between">
+      <div className="p-10 flex justify-between flex-wrap">
         <div>
           <img
             src="https://tenacityhq.vercel.app/img/Tenacity%20Logo%20White%20Transparent.png"
@@ -62,7 +62,7 @@ export default function Footer() {
         </div>
       </div>
       <Separator />
-      <div className="p-5 flex justify-between">
+      <div className="p-5 flex flex-wrap justify-between">
         <Select>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="English" />
