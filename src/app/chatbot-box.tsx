@@ -2,46 +2,49 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
+import { Content } from "@google/generative-ai";
 import { useEffect, useState } from "react";
-
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
-
-async function runBot() {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-    const chat = model.startChat({
-        history: [
-            {
-                role: "model",
-                parts: [
-                    { text: "Great to meet you. What would you like to know?" },
-                ],
-            },
-        ],
-        generationConfig: {
-            maxOutputTokens: 100,
-        },
-    });
-}
+import { getGeminiResponse } from "./actions";
+import ReactMarkdown from "react-markdown";
+import Markdown from "react-markdown";
 
 export default function ChatbotBox() {
+    const initialChatHistory: Content[] = [
+        {
+            role: "user",
+            parts: [
+                {
+                    text: 'Initialise chat with "I am Learn.AI, What would you like to know?"',
+                },
+            ],
+        },
+        {
+            role: "model",
+            parts: [{ text: "I am Learn.AI, What would you like to know?" }],
+        },
+    ];
+
     const [Open, setOpen] = useState(true);
-    const [messages, setMessages] = useState<string[]>(Array(20).fill("hi"));
+    const [chatHistory, setChatHistory] =
+        useState<Content[]>(initialChatHistory);
+
     const [input, setInput] = useState("");
     const [isSendDisabled, setIsSendDisabled] = useState(false);
 
     const handleSend = async () => {
         if (input.trim()) {
-            setMessages([...messages, input]);
-            // const result = await chat.sendMessage(input);
-            setInput("");
             setIsSendDisabled(true);
-            setTimeout(() => {
-                setIsSendDisabled(false);
-            }, 3000);
+            const prompt = input.trim();
+            setInput("");
+            const oldChat = chatHistory;
+            const newChat = {
+                role: "user",
+                parts: [{ text: prompt }],
+            };
+            setChatHistory([...oldChat, newChat]);
+            const response = await getGeminiResponse(prompt, chatHistory);
+            setChatHistory(response.newHistory);
+            setIsSendDisabled(false);
         }
     };
 
@@ -53,12 +56,8 @@ export default function ChatbotBox() {
     };
 
     useEffect(() => {
-        runBot();
-    }, []);
-
-    useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [chatHistory]);
 
     return (
         <div className="text-black p-4">
@@ -82,8 +81,8 @@ export default function ChatbotBox() {
                             id="scroll-area"
                             className="h-64 overflow-y-auto w-full bg-white border border-gray-300 rounded p-2"
                         >
-                            {messages.map((message, index) => (
-                                <p
+                            {chatHistory.slice(1).map((message, index) => (
+                                <div
                                     key={index}
                                     className={`py-2 px-3 rounded mb-2 ${
                                         index % 2 === 0
@@ -92,8 +91,12 @@ export default function ChatbotBox() {
                                     }`}
                                 >
                                     {index % 2 === 0 ? "Learn.AI: " : "You: "}
-                                    {message}
-                                </p>
+                                    {message.parts.map((part, index) => (
+                                        <ReactMarkdown key={index}>
+                                            {part.text}
+                                        </ReactMarkdown>
+                                    ))}
+                                </div>
                             ))}
                         </div>
                         <div className="flex py-2 mt-2 w-full">
