@@ -11,7 +11,7 @@ export async function getGeminiResponse(prompt: string, history: Content[]) {
     const chat = model.startChat({
         history: history,
         // generationConfig: {
-        //     maxOutputTokens: 100,
+        //     maxOutputTokens: 200,
         // },
     });
 

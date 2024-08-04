@@ -2,11 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import { Content } from "@google/generative-ai";
 import { useEffect, useState } from "react";
 import { getGeminiResponse } from "./actions";
 import ReactMarkdown from "react-markdown";
-import Markdown from "react-markdown";
 
 export default function ChatbotBox() {
     const initialChatHistory: Content[] = [
@@ -14,13 +15,15 @@ export default function ChatbotBox() {
             role: "user",
             parts: [
                 {
-                    text: 'Initialise chat with "I am Learn.AI, What would you like to know?"',
+                    text: 'Initialise chat with "Hello, I am Learn.AI. What would you like to know?"',
                 },
             ],
         },
         {
             role: "model",
-            parts: [{ text: "I am Learn.AI, What would you like to know?" }],
+            parts: [
+                { text: "Hello, I am Learn.AI. What would you like to know?" },
+            ],
         },
     ];
 
@@ -66,12 +69,21 @@ export default function ChatbotBox() {
                     <Button onClick={() => setOpen(true)}>Open Chatbot</Button>
                 </div>
             ) : (
-                <div className="border border-red-800 w-80 mx-2 flex flex-col items-end h-96 p-2 bg-gray-100 rounded-lg">
+                <div className="w-80 mx-2 drop-shadow-2xl flex flex-col items-end h-[30rem] p-2 bg-gray-400 rounded-lg">
                     <div className="flex w-full justify-between items-center mb-2">
-                        <p className="text-lg font-bold">Chatbot</p>
+                        <div className="flex items-center gap-2">
+                            <Avatar>
+                                <AvatarImage src="https://github.com/shadcn.png" />
+                                <AvatarFallback className="text-white">
+                                    LA
+                                </AvatarFallback>
+                            </Avatar>
+                            <p className="text-lg font-bold">Learn.AI</p>
+                        </div>
                         <Button
-                            variant={"default"}
+                            variant={"ghost"}
                             onClick={() => setOpen(false)}
+                            className="rounded-full font-bold hover:bg-inherit  text-lg "
                         >
                             ×
                         </Button>
@@ -79,27 +91,38 @@ export default function ChatbotBox() {
                     <div className="flex flex-col justify-center w-full h-full">
                         <div
                             id="scroll-area"
-                            className="h-64 overflow-y-auto w-full bg-white border border-gray-300 rounded p-2"
+                            className="h-[23rem] overflow-y-auto w-full bg-white border border-gray-300 rounded p-2"
                         >
                             {chatHistory.slice(1).map((message, index) => (
                                 <div
                                     key={index}
-                                    className={`py-2 px-3 rounded mb-2 ${
-                                        index % 2 === 0
-                                            ? "bg-blue-100 text-left"
-                                            : "bg-green-100 text-right"
+                                    className={`flex mb-2 ${
+                                        message.role === "model"
+                                            ? "justify-start"
+                                            : "justify-end"
                                     }`}
                                 >
-                                    {index % 2 === 0 ? "Learn.AI: " : "You: "}
-                                    {message.parts.map((part, index) => (
-                                        <ReactMarkdown key={index}>
-                                            {part.text}
-                                        </ReactMarkdown>
-                                    ))}
+                                    <div
+                                        className={`py-2 max-w-max px-3 rounded-3xl ${
+                                            message.role === "user"
+                                                ? "bg-green-100 rounded-br-none text-right"
+                                                : "bg-gray-200 rounded-bl-none text-left"
+                                        }`}
+                                    >
+                                        <div className="text-sm">
+                                            {message.parts.map(
+                                                (part, index) => (
+                                                    <ReactMarkdown key={index}>
+                                                        {part.text}
+                                                    </ReactMarkdown>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
-                        <div className="flex py-2 mt-2 w-full">
+                        <div className="flex py-1 items-center mt-1 w-full">
                             <Input
                                 type="text"
                                 value={input}
@@ -109,7 +132,7 @@ export default function ChatbotBox() {
                             <Button
                                 variant={"default"}
                                 onClick={handleSend}
-                                className={`p-2 rounded ${
+                                className={`px-3 h-8 rounded ${
                                     isSendDisabled
                                         ? "bg-gray-400 cursor-not-allowed"
                                         : "bg-blue-500 hover:text-black text-white"
