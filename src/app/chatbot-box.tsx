@@ -27,7 +27,7 @@ export default function ChatbotBox() {
         },
     ];
 
-    const [Open, setOpen] = useState(true);
+    const [Open, setOpen] = useState(false);
     const [chatHistory, setChatHistory] =
         useState<Content[]>(initialChatHistory);
 
